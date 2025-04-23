@@ -127,8 +127,10 @@ namespace UnityEngine.XR.Content.Interaction
         TrackedRotation m_UpVectorAngles = new TrackedRotation();
         TrackedRotation m_ForwardVectorAngles = new TrackedRotation();
 
-        private Quaternion m_InitialHandleRotation;
         float m_BaseKnobRotation = 0.0f;
+        
+        public float m_CurrentKnobRotation = 0.0f;
+        public Quaternion m_InitialHandleRotation;
 
         /// <summary>
         /// The object that is visually grabbed and manipulated
@@ -319,16 +321,16 @@ namespace UnityEngine.XR.Content.Interaction
                 m_ForwardVectorAngles.SetTargetFromVector(localForward);
 
             // Apply offset to base knob rotation to get new knob rotation
-            var knobRotation = m_BaseKnobRotation - ((m_UpVectorAngles.totalOffset + m_ForwardVectorAngles.totalOffset) * m_TwistSensitivity) - m_PositionAngles.totalOffset;
+            m_CurrentKnobRotation = m_BaseKnobRotation - ((m_UpVectorAngles.totalOffset + m_ForwardVectorAngles.totalOffset) * m_TwistSensitivity) - m_PositionAngles.totalOffset;
 
             // Clamp to range
             if (m_ClampedMotion)
-                knobRotation = Mathf.Clamp(knobRotation, m_MinAngle, m_MaxAngle);
+                m_CurrentKnobRotation = Mathf.Clamp(m_CurrentKnobRotation, m_MinAngle, m_MaxAngle);
 
-            SetKnobRotation(knobRotation);
+            SetKnobRotation(m_CurrentKnobRotation);
 
             // Reverse to get value
-            var knobValue = (knobRotation - m_MinAngle) / (m_MaxAngle - m_MinAngle);
+            var knobValue = (m_CurrentKnobRotation - m_MinAngle) / (m_MaxAngle - m_MinAngle);
             SetValue(knobValue);
         }
 
